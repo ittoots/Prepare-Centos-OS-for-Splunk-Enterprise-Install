@@ -1,6 +1,6 @@
 #PREPARE LINUX OS
 
-#Note I am disabling SE linux and FirewallD to keep things quick and simple, as this is a Splunk tutorial, not a linux tutorial.
+#Note I am disabling SE linux and FirewallD as this is a Splunk tutorial not a linux tutorial.
 
 #check status of SELinux
 sestatus
@@ -24,26 +24,14 @@ sudo firewall-cmd --state
 
 #DISABLE TRANSPARENT HUGE PAGES (THP)
 
+#Check status of THP
+cat /sys/kernel/mm/transparent_hugepage/enabled
+
 #Create the following file:
-sudo vi /etc/systemd/system/disable-thp.service
+grub2-editenv - set "$(grub2-editenv - list | grep kernelopts) transparent_hugepage=never"
 
-#and paste there following content:
-[Unit]
-Description=Disable Transparent Huge Pages (THP)
-
-[Service]
-Type=simple
-ExecStart=/bin/sh -c "echo 'never' > /sys/kernel/mm/transparent_hugepage/enabled && echo 'never' > /sys/kernel/mm/transparent_hugepage/defrag"
-
-[Install]
-WantedBy=multi-user.target
-
-#Save the file and reload SystemD daemon:
-sudo systemctl daemon-reload
-
-#Than you can start the script and enable it on boot level:
-sudo systemctl start disable-thp
-sudo systemctl enable disable-thp
+#Confirm status of THP is now set to never
+cat /sys/kernel/mm/transparent_hugepage/enabled
 
 
 #Create Group "splunk"
