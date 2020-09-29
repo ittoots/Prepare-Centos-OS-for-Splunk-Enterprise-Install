@@ -1,0 +1,69 @@
+#PREPARE LINUX OS
+
+#Note I am disabling SE linux and FirewallD to keep things quick and simple, as this is a Splunk tutorial, not a linux tutorial.
+
+#check status of SELinux
+sestatus
+
+#Open selinux file and set SELINUX to disabled
+vi /etc/sysconfig/selinux
+SELINUX=disabled
+	
+#Check state of firewall
+sudo firewall-cmd --state
+
+#Stop firewalld
+sudo systemctl stop firewalld
+
+#permanently disable firewalld
+sudo systemctl disable firewalld
+
+#confirm firewall is disabled
+sudo firewall-cmd --state
+
+
+#DISABLE TRANSPARENT HUGE PAGES (THP)
+
+#Create the following file:
+sudo vi /etc/systemd/system/disable-thp.service
+
+#and paste there following content:
+[Unit]
+Description=Disable Transparent Huge Pages (THP)
+
+[Service]
+Type=simple
+ExecStart=/bin/sh -c "echo 'never' > /sys/kernel/mm/transparent_hugepage/enabled && echo 'never' > /sys/kernel/mm/transparent_hugepage/defrag"
+
+[Install]
+WantedBy=multi-user.target
+
+#Save the file and reload SystemD daemon:
+sudo systemctl daemon-reload
+
+#Than you can start the script and enable it on boot level:
+sudo systemctl start disable-thp
+sudo systemctl enable disable-thp
+
+
+#Create Group "splunk"
+sudo groupadd -g splunk
+
+#Create User "Splunk"
+sudo useradd splunk
+
+#Add "splunk" user to "splunk" group
+sudo useradd -g splunk splunk
+
+#Switch to splunk user
+sudo su splunk
+
+#check open files u limits
+ulimit -a
+
+#open limits.conf and add the following lines
+vi /etc/security/limits.conf
+*     soft   nofile  65535
+*     hard   nofile  65535 
+
+reboot
