@@ -34,17 +34,7 @@ grub2-editenv - set "$(grub2-editenv - list | grep kernelopts) transparent_hugep
 cat /sys/kernel/mm/transparent_hugepage/enabled
 
 
-#Create Group "splunk"
-sudo groupadd -g splunk
-
-#Create User "Splunk"
-sudo useradd splunk
-
-#Add "splunk" user to "splunk" group
-sudo useradd -g splunk splunk
-
-#Switch to splunk user
-sudo su splunk
+#INCREASE ULIMITS
 
 #check open files u limits
 ulimit -a
